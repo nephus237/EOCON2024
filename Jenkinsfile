@@ -34,24 +34,15 @@ pipeline {
                 sh 'mvn verify'
             }
         }
-       stage('Static Code Analysis') {
-        steps {
-        script {
-            try {
-                sh 'mvn checkStyle:checkStyle pmd:pmd findbugs:findbugs'
-                recordIssues(qualityGates: [[threshold: 800, type: 'TOTAL', unstable: false]],
-                    tools: [checkStyle(pattern: 'target/checkstyle-result.xml'),
-                           pmdParser(pattern: 'target/pmd.xml'),
-                           findBugs(pattern: 'target/findbugsXml.xml')]
-                )
-            } catch (Exception e) {
-                currentBuild.result = 'FAILURE'
-                throw e
+       stage('SonarQube Analysis') {
+            steps {
+                // Use the withSonarQubeEnv wrapper to configure SonarQube analysis
+                withSonarQubeEnv('sonar-server') {
+                    sh 'mvn sonar:sonar -Dsonar.login=admin -Dsonar.password=mbachan'
+                }
             }
         }
-    }
-}
-        
+              
         stage('Docker Build') {
             steps {
                 sh 'docker build --no-cache -t feramin108/maven_lab3 .'
