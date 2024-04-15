@@ -33,5 +33,40 @@ pipeline {
                 sh 'mvn verify'
             }
         }
+        
+        stage('Static Code Analysis') {
+            steps {
+            
+                sh 'mvn checkstyle:checkstyle pmd:pmd findbugs:findbugs'
+            
+                recordIssues(qualityGates: [[threshold: 800, type: 'TOTAL', unstable: false]],
+                    tools: [checkStyle(pattern: 'target/checkstyle-result.xml'),
+                            pmdParser(pattern: 'target/pmd.xml'),
+                            findBugs(pattern: 'target/findbugsXml.xml')]
+                )
+            }
+        }
+        
+        stage('Docker Build') {
+            steps {
+                sh 'docker build  -t feramin108/maven_lab3.'
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'feramin108', passwordVariable: 'mavebuild123')]) {
+                    sh '''
+                        docker login -u feramin108 -p mavebuild123
+                        docker push feramin108/maven_lab3
+                    '''
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'docker pull feramin108/maven_lab3'
+                sh 'docker-compose -f docker-compose.yaml up -d'
+            }
+        }
     }
 }
