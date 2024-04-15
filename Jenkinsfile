@@ -62,7 +62,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'docker pull feramin108/maven_lab3'
-                sh 'docker-compose -f docker-compose.yaml up -d'
+                sh 'docker run -d -p 5050:8080 feramin108/maven_lab3'
             }
         }
     }
