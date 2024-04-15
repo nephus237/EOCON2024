@@ -41,16 +41,24 @@ pipeline {
                 sh 'docker build --no-cache -t feramin108/maven_lab3 .'
             }
         }
-        stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'feramin108', passwordVariable: 'mavebuild123')]) {
-                    sh '''
-                        docker login -u feramin108 -p mavebuild123
-                        docker push feramin108/maven_lab3
-                    '''
+      stage('Docker Push') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            script {
+                def dockerUsername = env.DOCKER_USERNAME
+                def dockerPassword = env.DOCKER_PASSWORD
+
+                try {
+                    sh "docker login -u $dockerUsername -p $dockerPassword"
+                    sh "docker push feramin108/maven_lab3"
+                } finally {
+                    sh "docker logout"
                 }
             }
         }
+    }
+}
+
         stage('Deploy') {
             steps {
                 sh 'docker pull feramin108/maven_lab3'
