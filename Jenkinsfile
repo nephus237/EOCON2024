@@ -38,7 +38,7 @@ pipeline {
         
         stage('Docker Build') {
             steps {
-                sh 'docker build --no-cache -t feramin108/maven_lab3.'
+                sh 'docker build --no-cache -t feramin108/maven_lab3 .'
             }
         }
         stage('Docker Push') {
