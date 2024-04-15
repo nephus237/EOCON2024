@@ -40,9 +40,9 @@ pipeline {
             try {
                 sh 'mvn checkStyle:checkStyle pmd:pmd findbugs:findbugs'
                 recordIssues(qualityGates: [[threshold: 800, type: 'TOTAL', unstable: false]],
-                    tools: [checkStyle(pattern: 'target/checkStyle-result.xml'),
-                            pmdParser(pattern: 'target/pmd.xml'),
-                            findBugs(pattern: 'target/findbugsXml.xml')]
+                    tools: [checkStyle(pattern: 'target/checkstyle-result.xml'),
+                           pmdParser(pattern: 'target/pmd.xml'),
+                           findBugs(pattern: 'target/findbugsXml.xml')]
                 )
             } catch (Exception e) {
                 currentBuild.result = 'FAILURE'
