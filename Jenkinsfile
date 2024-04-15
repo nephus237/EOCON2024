@@ -24,24 +24,26 @@ pipeline {
                 }
             }
         }
+        
         stage('Build & Unit Test') {
             steps {
                 sh 'mvn test'
             }
-        }
+        } 
+        
         stage('Integration Test') {
             steps {
                 sh 'mvn verify'
             }
         }
+        
        stage('SonarQube Analysis') {
             steps {
-                // Use the withSonarQubeEnv wrapper to configure SonarQube analysis
-                withSonarQubeEnv('sonar-server') {
-                    sh 'mvn sonar:sonar -Dsonar.login=admin -Dsonar.password=mbachan'
+               
+                sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=maven -Dsonar.projectName='maven' -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_afe6644c979b3b679c39e5bb1e57239cbfd591d9'
                 }
             }
-        }
+        
               
         stage('Docker Build') {
             steps {
