@@ -14,3 +14,4 @@ services:
       - "5050:8080"
     depends_on:
       - maven_build
+
