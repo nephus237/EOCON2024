@@ -45,7 +45,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'feramin108', passwordVariable: 'mavebuild123')]) {
                     sh '''
-                        docker login -u $feramin108 -p $mavebuild123
+                        docker login -u feramin108 -p mavebuild123
                         docker push feramin108/maven_lab3
                     '''
                 }
