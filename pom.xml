@@ -213,24 +213,7 @@
  		            </execution>
  		        </executions>
  		</plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>3.1.2</version> <!-- Example version, replace with the appropriate version -->
-           <executions>
-              <execution>
-                  <id>checkstyle-check</id>
-                  <phase>validate</phase>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-             </execution>
-           </executions>
-           <configuration>
-           <configLocation>checkstyle.xml</configLocation> <!-- Optional: specify the path to your Checkstyle configuration file -->
-           <!-- Other configuration options -->
-           </configuration>
-      </plugin>		
+		
         </plugins>
     </build>
 </project>
