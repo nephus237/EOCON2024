@@ -36,8 +36,12 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=maven -Dsonar.projectName="maven" -Dsonar.host.url=http://10.1.1.23:9000 -Dsonar.token=sqp_afe6644c979b3b679c39e5bb1e57239cbfd591d9'
+                 script {
+                    withSonarQubeEnv('SonarQube Server Name'){
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=maven -Dsonar.projectName="maven" -Dsonar.host.url=http://10.1.1.23:9000 -Dsonar.token=sqp_afe6644c979b3b679c39e5bb1e57239cbfd591d9'
             }
+        }
+        }
         }
          stage("Quality gate") {
             steps {
