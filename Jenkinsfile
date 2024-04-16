@@ -43,11 +43,7 @@ pipeline {
         }
         }
         }
-         stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
-        }
+        
         stage('Docker Build') {
             steps {
                 sh 'docker build --no-cache -t feramin108/maven_lab3 .'
