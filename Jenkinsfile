@@ -3,7 +3,7 @@ pipeline {
         label "deployment"
     }
     tools {
-        maven 'maven_lab3'
+        maven 'mavenapp'
     }
     stages {
         stage('Fetch code') {
@@ -34,19 +34,52 @@ pipeline {
                 sh 'mvn verify'
             }
         }
-        stage('SonarQube Analysis') {
+        stage('Snyk Security Scan') {
             steps {
-                 script {
-                    withSonarQubeEnv('sonarqube'){
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=maven -Dsonar.projectName="maven" -Dsonar.host.url=http://10.1.1.23:9000 -Dsonar.token=sqp_afe6644c979b3b679c39e5bb1e57239cbfd591d9'
+                withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
+                    script {
+                        // Install Snyk if it's not already installed
+                        sh '''
+                            if ! command -v snyk &> /dev/null
+                            then
+                                npm install -g snyk
+                            fi
+                        '''
+                        // Authenticate Snyk using the API token
+                        sh 'snyk auth $SNYK_TOKEN'
+                        
+                        // Run the Snyk code vulnerability test
+                        echo "Running Snyk Code Vulnerability Scan..."
+                        sh 'snyk test --all-projects'
+
+                        // Run the Snyk Dependency Check
+                        echo "Running Snyk Dependency Check..."
+                        sh 'snyk test'
+
+                        // Optionally, monitor the project for ongoing vulnerability tracking
+                        echo "Monitoring the project with Snyk..."
+                        sh 'snyk monitor'
+                    }
+                }
             }
         }
-        }
-        }
-        
         stage('Docker Build') {
             steps {
-                sh 'docker build --no-cache -t feramin108/maven_lab3 .'
+                sh 'docker build --no-cache -t feramin108/mavenapp .'
+            }
+        }
+        stage('Docker Scan') {
+            steps {
+                withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
+                    script {
+                        // Authenticate Snyk for Docker image scanning
+                        sh 'snyk auth $SNYK_TOKEN'
+                        
+                        // Scan the built Docker image for vulnerabilities
+                        echo "Scanning Docker image for vulnerabilities..."
+                        sh 'snyk container test feramin108/mavenapp'
+                    }
+                }
             }
         }
         stage('Docker Push') {
@@ -58,7 +91,7 @@ pipeline {
 
                         try {
                             sh "docker login -u $dockerUsername -p $dockerPassword"
-                            sh "docker push feramin108/maven_lab3"
+                            sh "docker push feramin108/mavenapp"
                         } finally {
                             sh "docker logout"
                         }
@@ -68,8 +101,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'docker pull feramin108/maven_lab3'
-                sh 'docker run -d -p 5050:8080 feramin108/maven_lab3'
+                sh 'docker pull feramin108/mavenapp'
+                sh 'docker run -d -p 5050:8080 feramin108/mavenapp'
             }
         }
     }
